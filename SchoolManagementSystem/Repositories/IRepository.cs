@@ -5,7 +5,7 @@ namespace SchoolManagementSystem.Repositories
     public interface IRepository <T> where T : class
     {
         public Task<List<T>> GetAsync(Expression<Func<T, bool>>? condition, List<Expression<Func<T, object>>>? includes, bool tracking = true);
-        public T? GetOne(Expression<Func<T, bool>>? condition);
+        public T? GetOne(Expression<Func<T, bool>>? condition, List<Expression<Func<T, object>>>? includes, bool tracking = true);
         void Create(T entity);
         void Edit(T entity);
         void Delete(T entity);

@@ -13,7 +13,14 @@ namespace SchoolManagementSystem.Repositories
         }
         public async Task CommitAsync()
         {
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
         }
 
         public void Create(T entity)
@@ -31,7 +38,7 @@ namespace SchoolManagementSystem.Repositories
             _dbSet.Update(entity);
         }
 
-        public async Task<List<T>> GetAsync(Expression<Func<T, bool>>? condition, List<Expression<Func<T, object>>>? includes, bool tracking = true)
+        public async Task<List<T>> GetAsync(Expression<Func<T, bool>>? condition = null, List<Expression<Func<T, object>>>? includes = null, bool tracking = true)
         {
             var result = _dbSet.AsQueryable();
             if (condition is not null)
@@ -51,11 +58,23 @@ namespace SchoolManagementSystem.Repositories
             }
             return await result.ToListAsync();
         }
-        public T? GetOne(Expression<Func<T, bool>>? condition)
+        public T? GetOne(Expression<Func<T, bool>>? condition = null, List<Expression<Func<T, object>>>? includes = null, bool tracking = true)
         {
+            var result = _dbSet.AsQueryable();
+            if (includes is not null)
+            {
+                foreach (var item in includes)
+                {
+                    result = result.Include(item).AsQueryable();
+                }
+            }
+            if (!tracking)
+            {
+                result = result.AsNoTracking();
+            }
             if (condition is not null)
-                return _dbSet.FirstOrDefault(condition);
-            return _dbSet.FirstOrDefault();
+                return result.FirstOrDefault(condition);
+            return result.FirstOrDefault();
         }
     }
 }
